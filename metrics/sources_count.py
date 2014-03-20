@@ -11,6 +11,9 @@ VCS_TYPES = ["arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn"]
 
 
 def get_data_set():
+    """Fetch data from history.sources_count table and return it
+    as a list of dicts
+    """
     engine = create_engine(DATABASE_URL)
     connection = engine.connect()
     vcs_column_prefix = "vcstype_"
@@ -35,7 +38,10 @@ def get_data_set():
     return results
 
 
-def generate_plots():
+def generate_plots(image_filename=None, html_filename=None):
+    """Generate static and/or dynamic plots for sources count metric"""
+    if not (image_filename or html_filename):
+        return
     data_set = get_data_set()
     dates = [item["date"] for item in data_set]
 
@@ -45,9 +51,14 @@ def generate_plots():
         col = hsv_to_rgb(array([[[i*1.0/len(VCS_TYPES), 1.0, 1.0]]]))[0][0]
         ax.plot(dates, [item[vcs] for item in data_set], color=col, label=vcs)
     ax.legend(loc="upper left")
-    pyplot.savefig("sources_count.png")
-    save_html(fig, "sources_count.html")
+    if image_filename:
+        pyplot.savefig(image_filename)
+    if html_filename:
+        save_html(fig, html_filename)
 
 
 if __name__ == "__main__":
-    generate_plots()
+    generate_plots(
+        image_filename="sources_count.png",
+        html_filename="sources_count.html"
+    )
