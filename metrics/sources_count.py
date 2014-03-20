@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import create_engine
+from numpy import array
 from matplotlib import pyplot
+from matplotlib.colors import hsv_to_rgb
 from mpld3 import save_html
 
 DATABASE_URL = "postgresql://public-udd-mirror:public-udd-mirror@\
 public-udd-mirror.xvm.mit.edu:5432/udd"
 VCS_TYPES = ["arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn"]
-COLORS = ["cyan", "green", "lime", "salmon", "red", "pink", "purple", "blue"]
 
 
 def get_data_set():
@@ -40,8 +41,9 @@ def generate_plots():
 
     fig, ax = pyplot.subplots()
     ax.set_title("Sources count")
-    for vcs, color in zip(VCS_TYPES, COLORS):
-        ax.plot(dates, [item[vcs] for item in data_set], color, label=vcs)
+    for i, vcs in enumerate(VCS_TYPES):
+        col = hsv_to_rgb(array([[[i*1.0/len(VCS_TYPES), 1.0, 1.0]]]))[0][0]
+        ax.plot(dates, [item[vcs] for item in data_set], color=col, label=vcs)
     ax.legend(loc="upper left")
     pyplot.savefig("sources_count.png")
     save_html(fig, "sources_count.html")
