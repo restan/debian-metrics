@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from matplotlib import pyplot
 from sqlalchemy import create_engine
+from matplotlib import pyplot
+from mpld3 import save_html
 
 DATABASE_URL = "postgresql://public-udd-mirror:public-udd-mirror@\
 public-udd-mirror.xvm.mit.edu:5432/udd"
@@ -33,16 +34,18 @@ def get_data_set():
     return results
 
 
-def generate_plot():
+def generate_plots():
     data_set = get_data_set()
     dates = [item["date"] for item in data_set]
 
-    pyplot.title("Sources count")
+    fig, ax = pyplot.subplots()
+    ax.set_title("Sources count")
     for vcs, color in zip(VCS_TYPES, COLORS):
-        pyplot.plot(dates, [item[vcs] for item in data_set], color, label=vcs)
-    pyplot.legend(loc="upper left")
+        ax.plot(dates, [item[vcs] for item in data_set], color, label=vcs)
+    ax.legend(loc="upper left")
     pyplot.savefig("sources_count.png")
+    save_html(fig, "sources_count.html")
 
 
 if __name__ == "__main__":
-    generate_plot()
+    generate_plots()
