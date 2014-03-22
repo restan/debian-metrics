@@ -10,6 +10,21 @@ public-udd-mirror.xvm.mit.edu:5432/udd"
 VCS_TYPES = ["arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn"]
 
 
+def get_rgb_color(hue):
+    """Convert hue (from HSV) to three element tuple representing RGB color.
+    Hue must be a float value between 0.0 and 1.0. Returned color has maximum
+    saturation and brightness.
+
+    get_rgb_color(0.0) -> (1.0, 0.0, 0.0) # Red
+    get_rgb_color(1.0/3) -> (0.0, 1.0, 0.0) # Green
+    get_rgb_color(2.0/3) -> (0.0, 0.0, 1.0) # Blue
+    get_rgb_color(1.0) -> (1.0, 0.0, 0.0) # Red
+    """
+    if not 0.0 <= hue <= 1.0:
+        raise ValueError("Hue must be a float value between 0.0 and 1.0")
+    return tuple(hsv_to_rgb(array([[[hue, 1.0, 1.0]]]))[0][0])
+
+
 def get_data_set():
     """Fetch data from history.sources_count table and return it
     as a list of dicts
@@ -47,13 +62,15 @@ def generate_plots(image_filename=None, html_filename=None):
 
     fig, ax = pyplot.subplots()
     ax.set_title("Sources count")
-    for i, vcs in enumerate(VCS_TYPES):
-        col = hsv_to_rgb(array([[[i*1.0/len(VCS_TYPES), 1.0, 1.0]]]))[0][0]
-        ax.plot(dates, [item[vcs] for item in data_set], color=col, label=vcs)
     ax.legend(loc="upper left")
+    for i, vcs in enumerate(VCS_TYPES):
+        col = get_rgb_color(i*1.0/len(VCS_TYPES))
+        ax.plot(dates, [item[vcs] for item in data_set], color=col, label=vcs)
     if image_filename:
+        # Save static plot as image
         pyplot.savefig(image_filename)
     if html_filename:
+        # Save dynamic plot as html document
         save_html(fig, html_filename)
 
 
