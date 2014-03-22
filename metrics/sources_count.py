@@ -62,10 +62,10 @@ def generate_plots(image_filename=None, html_filename=None):
 
     fig, ax = pyplot.subplots()
     ax.set_title("Sources count")
-    ax.legend(loc="upper left")
     for i, vcs in enumerate(VCS_TYPES):
         col = get_rgb_color(i*1.0/len(VCS_TYPES))
         ax.plot(dates, [item[vcs] for item in data_set], color=col, label=vcs)
+    ax.legend(loc="upper left")
     if image_filename:
         # Save static plot as image
         pyplot.savefig(image_filename)
